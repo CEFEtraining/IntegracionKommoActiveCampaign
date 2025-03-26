@@ -27,6 +27,17 @@ app.post('/webhook', async (req, res) => {
 
         // Verificar si la etapa contiene la palabra "Email"
         if (stageName.includes('Email')) {
+            // Obtener etiquetas del lead
+            const tags = lead.tags.map(tag => tag.name);
+
+            // Determinar el valor del campo "Querido/a" basado en las etiquetas
+            let queridoValue = '';
+            if (tags.includes('Femenino')) {
+                queridoValue = 'Querida';
+            } else if (tags.includes('Masculino')) {
+                queridoValue = 'Querido';
+            }
+
             // Crear contacto en ActiveCampaign
             const contactData = {
                 contact: {
@@ -37,6 +48,10 @@ app.post('/webhook', async (req, res) => {
                         {
                             field: '1', // ID del campo personalizado "Como le gusta que le llamen"
                             value: lead.custom_fields_values.find(field => field.code === 'CALL_NAME').values[0].value
+                        },
+                        {
+                            field: '2', // ID del campo personalizado "Querido/a"
+                            value: queridoValue
                         }
                     ]
                 }
